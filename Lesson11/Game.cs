@@ -33,8 +33,9 @@ namespace Lesson11
             Console.SetCursorPosition(0, 11);
             Console.WriteLine($"{uberChiterPlayer.TypePlaye} {uberChiterPlayer.Name} : ");
 
+            int[] commonList = new int[105];
             int[] notepagList = new int[105];
-            int[] chiterList = new int[105];
+            int[] cheaterList = new int[105];
             int[] uberList = new int[105];
             int[] uberChiterList = new int[105];
             Player[] players = new Player[4] { notebucPlayer, uberPlayer, chiterPlayer, uberChiterPlayer };
@@ -53,15 +54,16 @@ namespace Lesson11
             int step = 0;
             int x = 0;
             int i = 0;
+
             while (true)
             {
                 
-                if (step <= 100)
+                if (step < 100)
                 {
                     rnd = random.Next(40, 139);
                     notebucPlayer.Tactic(rnd, notepagList, out num);
                     notepagList[i + x] = num;
-                    chiterList[i + x] = num;
+                    commonList[i + x] = num;
                     Console.SetCursorPosition(0 + step, 3);
                     Console.Write(num);
                     if (num == basketWeight)
@@ -72,8 +74,8 @@ namespace Lesson11
 
                     Console.SetCursorPosition(0 + step, 6);
                     Console.Write(uberPlayer.number);
-                    chiterList[i + x + 1] = uberPlayer.number;
-                    uberList[i + 1] = num;
+                    commonList[i + x + 1] = uberPlayer.number;
+                    uberList[i] = uberPlayer.number;
                     if (uberPlayer.number == basketWeight)
                     {
                         Winner(uberPlayer.Name, basketWeight);
@@ -84,8 +86,9 @@ namespace Lesson11
                     }
 
                     rnd = random.Next(40, 139);
-                    chiterPlayer.Tactic(rnd, chiterList, out num);
-                    chiterList[i + x + 2] = num;
+                    chiterPlayer.Tactic(rnd, commonList, out num);
+                    commonList[i + x + 2] = num;
+                    cheaterList[i] = num;
                     Console.SetCursorPosition(0 + step, 9);
                     Console.Write(num);
                     if (num == basketWeight)
@@ -94,8 +97,8 @@ namespace Lesson11
                         break;
                     }
 
-                    uberChiterPlayer.Tactic(chiterList, out num);
-                    chiterList[i + x + 3] = num;
+                    uberChiterPlayer.Tactic(commonList, out num);
+                    commonList[i + x + 3] = num;
                     uberChiterList[i + 1] = num;
                     Console.SetCursorPosition(0 + step, 12);
                     Console.Write(num);
@@ -117,11 +120,12 @@ namespace Lesson11
                     int number3;
                     int number4;
                     DidntGuess(notepagList, basketWeight, out number1);
-                    DidntGuess(chiterList, basketWeight, out number2);
-                    DidntGuess(uberList, basketWeight, out number3);
+                    DidntGuess(uberList , basketWeight, out number2);
+                    DidntGuess(cheaterList, basketWeight, out number3);
                     DidntGuess(uberChiterList, basketWeight, out number4);
-                    DidntGuess2(basketWeight, number1, number2, number3, number4, out numberWin, out difference);
-                    Winner(numberWin, players, basketWeight, difference);
+                    bool sing;
+                    DidntGuess2(basketWeight, number1, number2, number3, number4, out numberWin, out difference, out sing);
+                    Winner(numberWin, players, basketWeight, difference, sing);
                     break;
 
                 }
@@ -139,13 +143,21 @@ namespace Lesson11
             Console.ResetColor();
 
         }
-        public void Winner(int number, Player[] players , int basketWeight, int difference)
+        public void Winner(int number, Player[] players , int basketWeight, int difference, bool sing)
         {
             Console.SetCursorPosition(0, 13);
             Console.BackgroundColor = ConsoleColor.Red;
             Console.WriteLine($"Was closest player {players[number].Name}");
             Console.BackgroundColor = ConsoleColor.Green;
-            Console.WriteLine($"{basketWeight - difference} kg");
+            if (sing == true)
+            {
+                Console.WriteLine($"{basketWeight + difference} kg");
+            }
+            else
+            {
+                Console.WriteLine($"{basketWeight - difference} kg");
+            }
+            
             Console.ResetColor();
         }
 
@@ -182,6 +194,11 @@ namespace Lesson11
             }
             for (int j = list.Length - 1; j > 0 ; j--)
             {
+                if (list[0]< basketWeight)
+                {
+                    b = list[0];
+                    break;
+                }
                 if (list[j] == 0)
                 {
                     continue;
@@ -196,7 +213,7 @@ namespace Lesson11
                     break;
                 }
             }
-
+            
             if ((basketWeight - a) < (b - basketWeight))
             {
                 number = a;
@@ -205,33 +222,45 @@ namespace Lesson11
             {
                 number = b;
             }
+            if ((b - basketWeight) < 0)
+            {
+                number = a;
 
-
-
-
+            }
         }
-        public void DidntGuess2(int basketWeight, int number1, int number2, int number3, int number4, out int number, out int difference)
+        public void DidntGuess2(int basketWeight, int number1, int number2, int number3, int number4, out int number, out int difference, out bool sing)
         {
-            number1 = basketWeight - number1;
-            number2 = basketWeight - number2;
-            number3 = basketWeight - number3;
-            number4 = basketWeight - number4;
+            sing = false;
+            int[] arr = new int[] { number1, number2, number3, number4 };
+            bool[] sings = new bool[4] {true, true, true, true};
+            for (int g = 0; g < arr.Length; g++)
+            {
+                if (arr[g] > basketWeight)
+                {
+                    arr[g] = arr[g] - basketWeight;
+                    sings[g]= true;
+                }
+                else
+                {
+                    arr[g] = basketWeight - arr[g];
+                    sings[g] = false;
+                }
+
+            }
+            
+            //number1 = basketWeight - number1;
+            //number2 = basketWeight - number2;
+            //number3 = basketWeight - number3;
+            //number4 = basketWeight - number4;
             number = 0;
             difference = 0;
             bool x = true;
             int i = 1;
-            int[] arr = new int[] { number1 , number2 , number3, number4 };
-            for (int j = 0; j < arr.Length; j++)
-            {
-                if (arr[j]<0)
-                {
-                    arr[j] = -arr[j];
-                }
-
-            }
+            
+            
             while(x)
             {
-                for (int j = 0; j < 4; j++)
+                for (int j = 0; j < arr.Length; j++)
                 {
                     if (arr[j] == i)
                     {
@@ -245,19 +274,23 @@ namespace Lesson11
             }
             if (number == 0)
             {
-                difference = number1;
+                difference = arr[0];
+                sing = sings[0];
             }
             if (number == 1)
             {
-                difference = number2;
+                difference = arr[1];
+                sing = sings[1];
             }
             if (number == 2)
             {
-                difference = number3;
+                difference = arr[2];
+                sing = sings[2];
             }
             if (number == 3)
             {
-                difference = number4;
+                difference = arr[3];
+                sing = sings[3];
             }
 
         }
